@@ -10,7 +10,10 @@ export function useRoutines() {
     try {
       const { data, error } = await supabase
         .from('routines')
-        .select('*')
+        .select(`
+          *,
+          exercises (*)
+        `)
         .order('created_at', { ascending: false });
 
       if (error) throw error;

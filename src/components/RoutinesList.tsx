@@ -64,15 +64,11 @@ export function RoutinesList({ routines, loading, onCreateRoutine, onSelectRouti
                 <div>
                     <h3 className="font-bold text-gray-900 text-lg mb-2">{routine.name}</h3>
                     <div className="flex items-center text-sm text-gray-600">
-                      <Calendar size={16} className="mr-2" />
+                      <Dumbbell size={16} className="mr-2" />
                       <span className="font-medium">
-                        {new Date(routine.created_at).toLocaleDateString('es-ES', {
-                          day: 'numeric',
-                          month: 'long',
-                          year: 'numeric'
-                        })}
+                        {routine.exercises?.length || 0} ejercicios
                       </span>
-                  </div>
+                    </div>
                 </div>
                   <div className="bg-gradient-to-br from-blue-100 to-purple-100 w-12 h-12 rounded-xl flex items-center justify-center">
                     <Dumbbell size={20} className="text-blue-600" />

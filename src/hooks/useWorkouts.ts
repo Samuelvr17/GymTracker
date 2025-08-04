@@ -37,7 +37,7 @@ export function useWorkouts() {
         .insert([{
           routine_id: routineId,
           date: new Date().toISOString(),
-          notes: duration ? `Duración: ${Math.floor(duration / 60)}m ${duration % 60}s` : null
+          notes: duration ? `Duración: ${Math.floor(duration / 60)}:${(duration % 60).toString().padStart(2, '0')}` : null
         }])
         .select()
         .single();

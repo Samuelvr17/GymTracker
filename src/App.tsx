@@ -59,7 +59,7 @@ function App() {
 
   const handleSaveWorkout = async (exerciseData: any[]) => {
     if (selectedRoutineWithExercises) {
-      await saveWorkout(selectedRoutineWithExercises.id, exerciseData.exercises, exerciseData.duration);
+      await saveWorkout(selectedRoutineWithExercises.id, exerciseData, null);
       setCurrentScreen('routines');
     }
   };

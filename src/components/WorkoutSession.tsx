@@ -166,16 +166,6 @@ export function WorkoutSession({ routine, onBack, onSaveWorkout }: WorkoutSessio
                           <X size={16} />
                         </button>
                       </div>
-                      
-                      {/* Rest buttons */}
-                      <div className="flex gap-2">
-                        <button className="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg text-sm font-medium hover:bg-blue-200 transition-colors">
-                          1:30
-                        </button>
-                        <button className="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg text-sm font-medium hover:bg-blue-200 transition-colors">
-                          3:00
-                        </button>
-                      </div>
                     </div>
                   ))}
                 </div>
