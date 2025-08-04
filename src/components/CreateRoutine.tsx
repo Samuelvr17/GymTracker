@@ -269,14 +269,14 @@ export function CreateRoutine({ onBack, routineId, initialData }: CreateRoutineP
                       placeholder="kg"
                       value={set.weight}
                       readOnly
-                      className="flex-1 px-2 py-1.5 sm:py-2 border border-gray-300 rounded bg-gray-50 text-center"
+                      className="w-16 sm:w-20 px-2 py-1.5 sm:py-2 border border-gray-300 rounded bg-gray-50 text-center text-sm"
                     />
                     <input
                       type="number"
                       placeholder="reps"
                       value={set.reps}
                       readOnly
-                      className="flex-1 px-2 py-1.5 sm:py-2 border border-gray-300 rounded bg-gray-50 text-center"
+                      className="w-16 sm:w-20 px-2 py-1.5 sm:py-2 border border-gray-300 rounded bg-gray-50 text-center text-sm"
                     />
                   </div>
                 ))}
@@ -364,14 +364,14 @@ export function CreateRoutine({ onBack, routineId, initialData }: CreateRoutineP
                         placeholder="kg"
                         value={set.weight}
                         onChange={(e) => updateSet(setIndex, 'weight', e.target.value)}
-                        className="flex-1 px-2 py-1.5 sm:py-2 border border-gray-300 rounded text-center"
+                        className="w-16 sm:w-20 px-2 py-1.5 sm:py-2 border border-gray-300 rounded text-center text-sm"
                       />
                       <input
                         type="number"
                         placeholder="reps"
                         value={set.reps}
                         onChange={(e) => updateSet(setIndex, 'reps', e.target.value)}
-                        className="flex-1 px-2 py-1.5 sm:py-2 border border-gray-300 rounded text-center"
+                        className="w-16 sm:w-20 px-2 py-1.5 sm:py-2 border border-gray-300 rounded text-center text-sm"
                       />
                       {newExercise.sets.length > 1 && (
                         <button
