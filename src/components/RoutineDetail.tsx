@@ -32,7 +32,8 @@ export function RoutineDetail({ routine, onBack, onEditRoutine, onStartWorkout }
     <div className="min-h-screen bg-gray-50">
       {/* Header with gradient */}
       <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 sm:p-6 rounded-b-2xl sm:rounded-b-3xl shadow-lg">
-        <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
+        <div className="flex items-center justify-between mb-3 sm:mb-4">
+          <div className="flex items-center gap-3 sm:gap-4">
           <button 
             onClick={onBack}
             className="p-2 hover:bg-white/20 rounded-lg sm:rounded-xl transition-colors"
@@ -41,6 +42,15 @@ export function RoutineDetail({ routine, onBack, onEditRoutine, onStartWorkout }
             <ArrowLeft size={24} className="hidden sm:block" />
           </button>
           <h1 className="text-xl sm:text-2xl font-bold">{routine.name}</h1>
+          </div>
+          <button
+            onClick={handleDeleteRoutine}
+            className="p-2 hover:bg-white/20 rounded-lg sm:rounded-xl transition-colors text-white hover:text-red-200"
+            title="Eliminar rutina"
+          >
+            <Trash2 size={20} className="sm:hidden" />
+            <Trash2 size={22} className="hidden sm:block" />
+          </button>
         </div>
       </div>
 
@@ -79,7 +89,7 @@ export function RoutineDetail({ routine, onBack, onEditRoutine, onStartWorkout }
         </div>
 
         {/* Action Buttons */}
-        <div className="space-y-3 sm:space-y-4 pt-4 sm:pt-6">
+        <div className="pt-4 sm:pt-6">
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
             <button
               onClick={onEditRoutine}
@@ -98,14 +108,6 @@ export function RoutineDetail({ routine, onBack, onEditRoutine, onStartWorkout }
               Iniciar
             </button>
           </div>
-          <button
-            onClick={handleDeleteRoutine}
-            className="w-full bg-red-500 text-white py-3 sm:py-4 px-4 sm:px-6 rounded-xl sm:rounded-2xl font-semibold text-base sm:text-lg hover:bg-red-600 transition-all duration-200 flex items-center justify-center gap-2"
-          >
-            <Trash2 size={18} className="sm:hidden" />
-            <Trash2 size={20} className="hidden sm:block" />
-            Eliminar Rutina
-          </button>
         </div>
       </div>
     </div>
