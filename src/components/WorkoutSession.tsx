@@ -9,7 +9,22 @@ interface WorkoutSessionProps {
 }
 
 export function WorkoutSession({ routine, onBack, onSaveWorkout }: WorkoutSessionProps) {
-  const [workoutData, setWorkoutData] = useState<{[key: string]: any}>({});
+  const [workoutData, setWorkoutData] = useState<{[key: string]: any}>(() => {
+    // Initialize with predefined sets from the routine
+    const initialData: {[key: string]: any} = {};
+    routine.exercises?.forEach(exercise => {
+      if (exercise.sets && exercise.sets.length > 0) {
+        initialData[exercise.id] = {
+          sets: exercise.sets.map((set, index) => ({
+            set_number: index + 1,
+            weight: set.weight?.toString() || '',
+            reps: set.reps?.toString() || ''
+          }))
+        };
+      }
+    });
+    return initialData;
+  });
   const [exerciseNotes, setExerciseNotes] = useState<{[key: string]: string}>({});
   const [startTime] = useState(new Date());
   const [elapsedTime, setElapsedTime] = useState(0);
