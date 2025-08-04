@@ -260,24 +260,30 @@ export function CreateRoutine({ onBack, routineId, initialData }: CreateRoutineP
 
               <div className="space-y-1 sm:space-y-2">
                 {exercise.sets.map((set, setIndex) => (
-                  <div key={setIndex} className="flex items-center space-x-2 text-xs sm:text-sm">
+                  <div key={setIndex} className="flex items-center gap-2 sm:gap-3 bg-white rounded-lg p-2 sm:p-3">
                     <span className="font-medium text-gray-500 w-6 sm:w-8">
                       {setIndex + 1}
                     </span>
+                    <div className="flex items-center gap-1 sm:gap-2">
                     <input
                       type="number"
                       placeholder="kg"
                       value={set.weight}
                       readOnly
-                      className="w-16 sm:w-20 px-2 py-1.5 sm:py-2 border border-gray-300 rounded bg-gray-50 text-center text-sm"
+                      className="w-14 sm:w-16 px-2 py-1.5 sm:py-2 border border-gray-200 rounded-lg bg-gray-50 text-center text-sm font-medium"
                     />
+                      <span className="text-xs text-gray-500 font-medium">kg</span>
+                    </div>
+                    <div className="flex items-center gap-1 sm:gap-2">
                     <input
                       type="number"
                       placeholder="reps"
                       value={set.reps}
                       readOnly
-                      className="w-16 sm:w-20 px-2 py-1.5 sm:py-2 border border-gray-300 rounded bg-gray-50 text-center text-sm"
+                      className="w-14 sm:w-16 px-2 py-1.5 sm:py-2 border border-gray-200 rounded-lg bg-gray-50 text-center text-sm font-medium"
                     />
+                      <span className="text-xs text-gray-500 font-medium">reps</span>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -355,28 +361,34 @@ export function CreateRoutine({ onBack, routineId, initialData }: CreateRoutineP
                 
                 <div className="space-y-1.5 sm:space-y-2">
                   {newExercise.sets.map((set, setIndex) => (
-                    <div key={setIndex} className="flex items-center space-x-2 text-xs sm:text-sm">
+                    <div key={setIndex} className="flex items-center gap-2 sm:gap-3 bg-gray-50 rounded-lg p-2 sm:p-3">
                       <span className="font-medium text-gray-500 w-6 sm:w-8">
                         {setIndex + 1}
                       </span>
+                      <div className="flex items-center gap-1 sm:gap-2">
                       <input
                         type="number"
                         placeholder="kg"
                         value={set.weight}
                         onChange={(e) => updateSet(setIndex, 'weight', e.target.value)}
-                        className="w-16 sm:w-20 px-2 py-1.5 sm:py-2 border border-gray-300 rounded text-center text-sm"
+                        className="w-14 sm:w-16 px-2 py-1.5 sm:py-2 border border-gray-300 rounded-lg text-center text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       />
+                        <span className="text-xs text-gray-500 font-medium">kg</span>
+                      </div>
+                      <div className="flex items-center gap-1 sm:gap-2">
                       <input
                         type="number"
                         placeholder="reps"
                         value={set.reps}
                         onChange={(e) => updateSet(setIndex, 'reps', e.target.value)}
-                        className="w-16 sm:w-20 px-2 py-1.5 sm:py-2 border border-gray-300 rounded text-center text-sm"
+                        className="w-14 sm:w-16 px-2 py-1.5 sm:py-2 border border-gray-300 rounded-lg text-center text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       />
+                        <span className="text-xs text-gray-500 font-medium">reps</span>
+                      </div>
                       {newExercise.sets.length > 1 && (
                         <button
                           onClick={() => removeSet(setIndex)}
-                          className="text-red-500 hover:text-red-700 p-1.5 hover:bg-red-50 rounded transition-colors"
+                          className="ml-auto text-red-500 hover:text-red-700 p-1.5 hover:bg-red-50 rounded-lg transition-colors"
                         >
                           <Trash2 size={14} />
                         </button>
