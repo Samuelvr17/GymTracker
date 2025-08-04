@@ -1,6 +1,7 @@
 import React from 'react';
-import { ArrowLeft, Edit, Play, Dumbbell, Zap } from 'lucide-react';
+import { ArrowLeft, Edit, Play, Dumbbell, Zap, Trash2 } from 'lucide-react';
 import { Routine, Exercise } from '../types';
+import { supabase } from '../lib/supabase';
 
 interface RoutineDetailProps {
   routine: Routine;
@@ -10,6 +11,23 @@ interface RoutineDetailProps {
 }
 
 export function RoutineDetail({ routine, onBack, onEditRoutine, onStartWorkout }: RoutineDetailProps) {
+  const handleDeleteRoutine = async () => {
+    if (confirm(`¿Estás seguro de que quieres eliminar la rutina "${routine.name}"? Esta acción no se puede deshacer.`)) {
+      try {
+        const { error } = await supabase
+          .from('routines')
+          .delete()
+          .eq('id', routine.id);
+
+        if (error) throw error;
+        onBack(); // Regresa a la lista después de eliminar
+      } catch (error) {
+        console.error('Error deleting routine:', error);
+        alert('Error al eliminar la rutina');
+      }
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header with gradient */}
@@ -61,22 +79,32 @@ export function RoutineDetail({ routine, onBack, onEditRoutine, onStartWorkout }
         </div>
 
         {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4 sm:pt-6">
+        <div className="space-y-3 sm:space-y-4 pt-4 sm:pt-6">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+            <button
+              onClick={onEditRoutine}
+              className="flex-1 bg-gray-200 text-gray-800 py-3 sm:py-4 px-4 sm:px-6 rounded-xl sm:rounded-2xl font-semibold text-base sm:text-lg hover:bg-gray-300 transition-all duration-200 flex items-center justify-center gap-2"
+            >
+              <Edit size={18} className="sm:hidden" />
+              <Edit size={20} className="hidden sm:block" />
+              Editar
+            </button>
+            <button
+              onClick={onStartWorkout}
+              className="flex-1 bg-gradient-to-r from-green-500 to-green-600 text-white py-3 sm:py-4 px-4 sm:px-6 rounded-xl sm:rounded-2xl font-semibold text-base sm:text-lg hover:from-green-600 hover:to-green-700 transition-all duration-200 flex items-center justify-center gap-2 shadow-lg"
+            >
+              <Play size={18} className="sm:hidden" />
+              <Play size={20} className="hidden sm:block" />
+              Iniciar
+            </button>
+          </div>
           <button
-            onClick={onEditRoutine}
-            className="flex-1 bg-gray-200 text-gray-800 py-3 sm:py-4 px-4 sm:px-6 rounded-xl sm:rounded-2xl font-semibold text-base sm:text-lg hover:bg-gray-300 transition-all duration-200 flex items-center justify-center gap-2"
+            onClick={handleDeleteRoutine}
+            className="w-full bg-red-500 text-white py-3 sm:py-4 px-4 sm:px-6 rounded-xl sm:rounded-2xl font-semibold text-base sm:text-lg hover:bg-red-600 transition-all duration-200 flex items-center justify-center gap-2"
           >
-            <Edit size={18} className="sm:hidden" />
-            <Edit size={20} className="hidden sm:block" />
-            Editar
-          </button>
-          <button
-            onClick={onStartWorkout}
-            className="flex-1 bg-gradient-to-r from-green-500 to-green-600 text-white py-3 sm:py-4 px-4 sm:px-6 rounded-xl sm:rounded-2xl font-semibold text-base sm:text-lg hover:from-green-600 hover:to-green-700 transition-all duration-200 flex items-center justify-center gap-2 shadow-lg"
-          >
-            <Play size={18} className="sm:hidden" />
-            <Play size={20} className="hidden sm:block" />
-            Iniciar
+            <Trash2 size={18} className="sm:hidden" />
+            <Trash2 size={20} className="hidden sm:block" />
+            Eliminar Rutina
           </button>
         </div>
       </div>

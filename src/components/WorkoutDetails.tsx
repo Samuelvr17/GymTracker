@@ -1,6 +1,7 @@
 import React from 'react';
-import { ArrowLeft, Calendar, Clock } from 'lucide-react';
+import { ArrowLeft, Calendar, Clock, Trash2 } from 'lucide-react';
 import { WorkoutWithDetails } from '../types';
+import { supabase } from '../lib/supabase';
 
 interface WorkoutDetailsProps {
   workout: WorkoutWithDetails;
@@ -8,6 +9,23 @@ interface WorkoutDetailsProps {
 }
 
 export function WorkoutDetails({ workout, onBack }: WorkoutDetailsProps) {
+  const handleDeleteWorkout = async () => {
+    if (confirm(`¿Estás seguro de que quieres eliminar este entrenamiento de "${workout.routine.name}"? Esta acción no se puede deshacer.`)) {
+      try {
+        const { error } = await supabase
+          .from('workouts')
+          .delete()
+          .eq('id', workout.id);
+
+        if (error) throw error;
+        onBack(); // Regresa al historial después de eliminar
+      } catch (error) {
+        console.error('Error deleting workout:', error);
+        alert('Error al eliminar el entrenamiento');
+      }
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-500 via-blue-600 to-purple-700">
       <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white">
@@ -30,9 +48,8 @@ export function WorkoutDetails({ workout, onBack }: WorkoutDetailsProps) {
               <Calendar size={16} className="mr-2 hidden sm:block" />
               <span className="font-medium">
                 {new Date(workout.date).toLocaleDateString('es-ES', {
-                  weekday: 'long',
-                  day: 'numeric',
-                  month: 'long',
+                  day: '2-digit',
+                  month: '2-digit',
                   year: 'numeric'
                 })}
               </span>
@@ -116,6 +133,18 @@ export function WorkoutDetails({ workout, onBack }: WorkoutDetailsProps) {
                 )}
               </div>
             ))}
+          </div>
+
+          {/* Delete Button */}
+          <div className="mt-6 sm:mt-8 pb-6 sm:pb-8">
+            <button
+              onClick={handleDeleteWorkout}
+              className="w-full bg-red-500 text-white py-3 sm:py-4 px-4 sm:px-6 rounded-xl sm:rounded-2xl font-bold text-base sm:text-lg hover:bg-red-600 transition-all duration-200 flex items-center justify-center gap-2"
+            >
+              <Trash2 size={18} className="sm:hidden" />
+              <Trash2 size={20} className="hidden sm:block" />
+              Eliminar Entrenamiento
+            </button>
           </div>
         </div>
       </div>

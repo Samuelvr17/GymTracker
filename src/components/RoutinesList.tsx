@@ -1,7 +1,6 @@
 import React from 'react';
-import { Plus, Dumbbell, Trash2, MoreVertical } from 'lucide-react';
+import { Plus, Dumbbell } from 'lucide-react';
 import { Routine } from '../types';
-import { supabase } from '../lib/supabase';
 
 interface RoutinesListProps {
   routines: Routine[];
@@ -12,26 +11,6 @@ interface RoutinesListProps {
 }
 
 export function RoutinesList({ routines, loading, onCreateRoutine, onSelectRoutine, onRefresh }: RoutinesListProps) {
-  const [showDeleteMenu, setShowDeleteMenu] = React.useState<string | null>(null);
-
-  const handleDeleteRoutine = async (routineId: string, routineName: string) => {
-    if (confirm(`¿Estás seguro de que quieres eliminar la rutina "${routineName}"? Esta acción no se puede deshacer.`)) {
-      try {
-        const { error } = await supabase
-          .from('routines')
-          .delete()
-          .eq('id', routineId);
-
-        if (error) throw error;
-        onRefresh();
-        setShowDeleteMenu(null);
-      } catch (error) {
-        console.error('Error deleting routine:', error);
-        alert('Error al eliminar la rutina');
-      }
-    }
-  };
-
   if (loading) {
     return (
       <div className="p-4 sm:p-6">
@@ -104,41 +83,11 @@ export function RoutinesList({ routines, loading, onCreateRoutine, onSelectRouti
                   </div>
               </div>
               </button>
-              
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowDeleteMenu(showDeleteMenu === routine.id ? null : routine.id);
-                }}
-                className="absolute top-3 right-3 sm:top-4 sm:right-4 p-2 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <MoreVertical size={16} className="text-gray-500" />
-              </button>
-
-              {showDeleteMenu === routine.id && (
-                <div className="absolute top-12 right-3 sm:right-4 bg-white rounded-lg shadow-lg border z-10 min-w-[120px]">
-                  <button
-                    onClick={() => handleDeleteRoutine(routine.id, routine.name)}
-                    className="w-full px-4 py-3 text-left text-red-600 hover:bg-red-50 rounded-lg flex items-center text-sm font-medium"
-                  >
-                    <Trash2 size={14} className="mr-2" />
-                    Eliminar
-                  </button>
-                </div>
-              )}
             </div>
           ))}
         </div>
       )}
       </div>
-      
-      {/* Overlay to close delete menu */}
-      {showDeleteMenu && (
-        <div 
-          className="fixed inset-0 z-5" 
-          onClick={() => setShowDeleteMenu(null)}
-        />
-      )}
     </div>
   );
 }

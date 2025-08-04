@@ -1,7 +1,6 @@
 import React from 'react';
-import { Calendar, Clock, Trash2, MoreVertical } from 'lucide-react';
+import { Calendar, Clock } from 'lucide-react';
 import { WorkoutWithDetails } from '../types';
-import { supabase } from '../lib/supabase';
 
 interface WorkoutHistoryProps {
   workouts: WorkoutWithDetails[];
@@ -11,26 +10,6 @@ interface WorkoutHistoryProps {
 }
 
 export function WorkoutHistory({ workouts, loading, onSelectWorkout, onRefresh }: WorkoutHistoryProps) {
-  const [showDeleteMenu, setShowDeleteMenu] = React.useState<string | null>(null);
-
-  const handleDeleteWorkout = async (workoutId: string, routineName: string) => {
-    if (confirm(`¿Estás seguro de que quieres eliminar este entrenamiento de "${routineName}"? Esta acción no se puede deshacer.`)) {
-      try {
-        const { error } = await supabase
-          .from('workouts')
-          .delete()
-          .eq('id', workoutId);
-
-        if (error) throw error;
-        onRefresh();
-        setShowDeleteMenu(null);
-      } catch (error) {
-        console.error('Error deleting workout:', error);
-        alert('Error al eliminar el entrenamiento');
-      }
-    }
-  };
-
   if (loading) {
     return (
       <div className="p-4 sm:p-6">
@@ -79,8 +58,8 @@ export function WorkoutHistory({ workouts, loading, onSelectWorkout, onRefresh }
                       <Calendar size={16} className="mr-2 hidden sm:block" />
                       <span className="font-medium">
                         {new Date(workout.date).toLocaleDateString('es-ES', {
-                          day: 'numeric',
-                          month: 'long',
+                          day: '2-digit',
+                          month: '2-digit',
                           year: 'numeric'
                         })} - {new Date(workout.date).toLocaleTimeString('es-ES', {
                           hour: '2-digit',
@@ -101,41 +80,11 @@ export function WorkoutHistory({ workouts, loading, onSelectWorkout, onRefresh }
                     <Clock size={20} className="hidden sm:block text-green-600" />
                   </div>
               </div>
-              </button>
-              
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowDeleteMenu(showDeleteMenu === workout.id ? null : workout.id);
-                }}
-                className="absolute top-3 right-3 sm:top-4 sm:right-4 p-2 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <MoreVertical size={16} className="text-gray-500" />
-              </button>
-              {showDeleteMenu === workout.id && (
-                <div className="absolute top-12 right-3 sm:right-4 bg-white rounded-lg shadow-lg border z-10 min-w-[140px]">
-                  <button
-                    onClick={() => handleDeleteWorkout(workout.id, workout.routine.name)}
-                    className="w-full px-4 py-3 text-left text-red-600 hover:bg-red-50 rounded-lg flex items-center text-sm font-medium"
-                  >
-                    <Trash2 size={14} className="mr-2" />
-                    Eliminar
-                  </button>
-                </div>
-              )}
             </div>
           ))}
         </div>
       )}
       </div>
-      
-      {/* Overlay to close delete menu */}
-      {showDeleteMenu && (
-        <div 
-          className="fixed inset-0 z-5" 
-          onClick={() => setShowDeleteMenu(null)}
-        />
-      )}
     </div>
   );
 }
