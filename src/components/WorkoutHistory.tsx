@@ -80,6 +80,7 @@ export function WorkoutHistory({ workouts, loading, onSelectWorkout, onRefresh }
                     <Clock size={20} className="hidden sm:block text-green-600" />
                   </div>
               </div>
+              </button>
             </div>
           ))}
         </div>
