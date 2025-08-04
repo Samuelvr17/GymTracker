@@ -101,51 +101,53 @@ export function WorkoutSession({ routine, onBack, onSaveWorkout }: WorkoutSessio
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-500 via-blue-600 to-purple-700">
       <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white">
-        <div className="flex items-center justify-between p-4 pt-12">
+        <div className="flex items-center justify-between p-4 pt-8 sm:pt-12">
           <button 
             onClick={onBack}
-            className="p-2 hover:bg-white/20 rounded-xl transition-colors"
+            className="p-2 hover:bg-white/20 rounded-lg sm:rounded-xl transition-colors"
           >
-            <ArrowLeft size={24} strokeWidth={2.5} />
+            <ArrowLeft size={20} className="sm:hidden" strokeWidth={2.5} />
+            <ArrowLeft size={24} className="hidden sm:block" strokeWidth={2.5} />
           </button>
-          <h1 className="text-xl font-bold">Entrenamiento</h1>
+          <h1 className="text-lg sm:text-xl font-bold">Entrenamiento</h1>
           <div className="w-10" />
         </div>
       </div>
 
       {/* Timer */}
-      <div className="mx-4 mt-4 bg-gradient-to-r from-green-500 to-green-600 text-white p-4 rounded-2xl shadow-lg">
+      <div className="mx-4 mt-4 bg-gradient-to-r from-green-500 to-green-600 text-white p-3 sm:p-4 rounded-xl sm:rounded-2xl shadow-lg">
         <div className="flex items-center gap-3">
-          <Clock size={20} />
+          <Clock size={18} className="sm:hidden" />
+          <Clock size={20} className="hidden sm:block" />
           <div>
-            <p className="text-green-100 text-xs">Tiempo de entrenamiento</p>
-            <p className="text-2xl font-bold">{formatTime(elapsedTime)}</p>
+            <p className="text-green-100 text-xs sm:text-sm">Tiempo de entrenamiento</p>
+            <p className="text-xl sm:text-2xl font-bold">{formatTime(elapsedTime)}</p>
           </div>
         </div>
       </div>
 
       <div className="bg-white rounded-t-3xl mt-4 min-h-screen">
-        <div className="p-6 pt-8">
+        <div className="p-4 sm:p-6 pt-6 sm:pt-8">
           <div className="mb-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">{routine.name}</h2>
-            <p className="text-gray-600">Registra tu entrenamiento</p>
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">{routine.name}</h2>
+            <p className="text-gray-600 text-sm sm:text-base">Registra tu entrenamiento</p>
           </div>
 
           {/* Exercises */}
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {routine.exercises?.map((exercise) => (
-              <div key={exercise.id} className="bg-gray-50 rounded-2xl p-5">
+              <div key={exercise.id} className="bg-gray-50 rounded-xl sm:rounded-2xl p-4 sm:p-5">
                 <div className="mb-4">
-                  <h3 className="text-xl font-bold text-gray-900 mb-3">{exercise.name}</h3>
+                  <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2 sm:mb-3">{exercise.name}</h3>
                   
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-1.5 sm:gap-2">
                     {exercise.expected_reps && (
-                      <div className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-medium">
+                      <div className="bg-blue-100 text-blue-700 px-2.5 sm:px-3 py-1 rounded-full text-xs font-medium">
                         🎯 {exercise.expected_reps} reps
                       </div>
                     )}
                     {exercise.technique && (
-                      <div className="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-xs font-medium">
+                      <div className="bg-purple-100 text-purple-700 px-2.5 sm:px-3 py-1 rounded-full text-xs font-medium">
                         ⚡ {exercise.technique}
                       </div>
                     )}
@@ -153,32 +155,33 @@ export function WorkoutSession({ routine, onBack, onSaveWorkout }: WorkoutSessio
                 </div>
 
                 {/* Sets */}
-                <div className="space-y-3 mb-4">
+                <div className="space-y-2 sm:space-y-3 mb-4">
                   {(workoutData[exercise.id]?.sets || []).map((set: any, setIndex: number) => (
-                    <div key={setIndex} className="bg-white rounded-xl p-4">
-                      <div className="flex items-center gap-3 mb-3">
-                        <span className="font-bold text-gray-700 w-6">{setIndex + 1}</span>
+                    <div key={setIndex} className="bg-white rounded-lg sm:rounded-xl p-3 sm:p-4">
+                      <div className="flex items-center gap-2 sm:gap-3">
+                        <span className="font-bold text-gray-700 w-5 sm:w-6 text-sm sm:text-base">{setIndex + 1}</span>
                         <input
                           type="number"
                           placeholder="0"
                           value={set.weight}
                           onChange={(e) => updateSet(exercise.id, setIndex, 'weight', e.target.value)}
-                          className="w-20 px-3 py-2 border border-gray-200 rounded-lg text-center font-medium"
+                          className="w-16 sm:w-20 px-2 sm:px-3 py-1.5 sm:py-2 border border-gray-200 rounded-lg text-center font-medium text-sm sm:text-base"
                         />
-                        <span className="text-gray-600 text-sm">kg</span>
+                        <span className="text-gray-600 text-xs sm:text-sm">kg</span>
                         <input
                           type="number"
                           placeholder="0"
                           value={set.reps}
                           onChange={(e) => updateSet(exercise.id, setIndex, 'reps', e.target.value)}
-                          className="w-20 px-3 py-2 border border-gray-200 rounded-lg text-center font-medium"
+                          className="w-16 sm:w-20 px-2 sm:px-3 py-1.5 sm:py-2 border border-gray-200 rounded-lg text-center font-medium text-sm sm:text-base"
                         />
-                        <span className="text-gray-600 text-sm">reps</span>
+                        <span className="text-gray-600 text-xs sm:text-sm">reps</span>
                         <button
                           onClick={() => removeSet(exercise.id, setIndex)}
-                          className="ml-auto p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                          className="ml-auto p-1.5 sm:p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                         >
-                          <X size={16} />
+                          <X size={14} className="sm:hidden" />
+                          <X size={16} className="hidden sm:block" />
                         </button>
                       </div>
                     </div>
@@ -188,17 +191,19 @@ export function WorkoutSession({ routine, onBack, onSaveWorkout }: WorkoutSessio
                 {/* Add Set Button */}
                 <button
                   onClick={() => addSet(exercise.id)}
-                  className="w-full py-3 border-2 border-dashed border-green-300 text-green-600 rounded-xl hover:border-green-400 hover:text-green-700 transition-colors flex items-center justify-center gap-2 font-medium mb-4"
+                  className="w-full py-2.5 sm:py-3 border-2 border-dashed border-green-300 text-green-600 rounded-lg sm:rounded-xl hover:border-green-400 hover:text-green-700 transition-colors flex items-center justify-center gap-2 font-medium mb-4 text-sm sm:text-base"
                 >
-                  <Plus size={20} />
+                  <Plus size={16} className="sm:hidden" />
+                  <Plus size={20} className="hidden sm:block" />
                   Añadir serie
                 </button>
 
                 {/* Notes */}
-                <div className="bg-white rounded-xl p-4">
-                  <div className="flex items-center gap-2 mb-3">
-                    <MessageSquare size={16} className="text-gray-600" />
-                    <span className="text-sm font-bold text-gray-700">Notas</span>
+                <div className="bg-white rounded-lg sm:rounded-xl p-3 sm:p-4">
+                  <div className="flex items-center gap-2 mb-2 sm:mb-3">
+                    <MessageSquare size={14} className="sm:hidden text-gray-600" />
+                    <MessageSquare size={16} className="hidden sm:block text-gray-600" />
+                    <span className="text-xs sm:text-sm font-bold text-gray-700">Notas</span>
                   </div>
                   <textarea
                     placeholder="Añade comentarios sobre este ejercicio..."
@@ -207,7 +212,7 @@ export function WorkoutSession({ routine, onBack, onSaveWorkout }: WorkoutSessio
                       ...prev,
                       [exercise.id]: e.target.value
                     }))}
-                    className="w-full p-3 border border-gray-200 rounded-lg resize-none h-16 text-sm text-gray-700 placeholder-gray-400"
+                    className="w-full p-2.5 sm:p-3 border border-gray-200 rounded-lg resize-none h-12 sm:h-16 text-xs sm:text-sm text-gray-700 placeholder-gray-400"
                   />
                 </div>
               </div>
@@ -215,12 +220,13 @@ export function WorkoutSession({ routine, onBack, onSaveWorkout }: WorkoutSessio
           </div>
 
           {/* Save Button */}
-          <div className="mt-8 pb-8">
+          <div className="mt-6 sm:mt-8 pb-6 sm:pb-8">
             <button
               onClick={handleSave}
-              className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-4 px-6 rounded-2xl font-bold text-lg hover:from-green-600 hover:to-green-700 transition-all duration-200 shadow-lg flex items-center justify-center gap-2"
+              className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-3 sm:py-4 px-4 sm:px-6 rounded-xl sm:rounded-2xl font-bold text-base sm:text-lg hover:from-green-600 hover:to-green-700 transition-all duration-200 shadow-lg flex items-center justify-center gap-2"
             >
-              <Save size={20} />
+              <Save size={18} className="sm:hidden" />
+              <Save size={20} className="hidden sm:block" />
               Guardar Entreno
             </button>
           </div>
