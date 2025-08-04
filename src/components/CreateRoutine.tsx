@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Plus, Trash2, X } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, X, Edit3 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 interface Exercise {
@@ -23,6 +23,7 @@ export function CreateRoutine({ onBack, routineId, initialData }: CreateRoutineP
   const [routineName, setRoutineName] = useState(initialData?.name || '');
   const [exercises, setExercises] = useState<Exercise[]>(initialData?.exercises || []);
   const [showExerciseForm, setShowExerciseForm] = useState(false);
+  const [editingExercise, setEditingExercise] = useState<{ index: number; exercise: Exercise } | null>(null);
   const [newExercise, setNewExercise] = useState<Exercise>({
     name: '',
     technique: '',
@@ -56,7 +57,16 @@ export function CreateRoutine({ onBack, routineId, initialData }: CreateRoutineP
 
   const addExercise = () => {
     if (newExercise.name.trim()) {
-      setExercises(prev => [...prev, { ...newExercise }]);
+      if (editingExercise !== null) {
+        // Update existing exercise
+        setExercises(prev => prev.map((ex, index) => 
+          index === editingExercise.index ? { ...newExercise } : ex
+        ));
+        setEditingExercise(null);
+      } else {
+        // Add new exercise
+        setExercises(prev => [...prev, { ...newExercise }]);
+      }
       setNewExercise({
         name: '',
         technique: '',
@@ -69,6 +79,24 @@ export function CreateRoutine({ onBack, routineId, initialData }: CreateRoutineP
 
   const removeExercise = (exerciseIndex: number) => {
     setExercises(prev => prev.filter((_, index) => index !== exerciseIndex));
+  };
+
+  const editExercise = (exerciseIndex: number) => {
+    const exercise = exercises[exerciseIndex];
+    setEditingExercise({ index: exerciseIndex, exercise });
+    setNewExercise({ ...exercise });
+    setShowExerciseForm(true);
+  };
+
+  const cancelEdit = () => {
+    setEditingExercise(null);
+    setNewExercise({
+      name: '',
+      technique: '',
+      expected_reps: '',
+      sets: [{ weight: '', reps: '' }]
+    });
+    setShowExerciseForm(false);
   };
 
   const saveRoutine = async () => {
@@ -151,26 +179,27 @@ export function CreateRoutine({ onBack, routineId, initialData }: CreateRoutineP
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="bg-white shadow-sm border-b">
-        <div className="flex items-center justify-between p-4">
+        <div className="flex items-center justify-between p-4 sm:p-6">
           <button onClick={onBack} className="p-2 hover:bg-gray-100 rounded-lg">
-            <ArrowLeft size={24} />
+            <ArrowLeft size={20} className="sm:hidden" />
+            <ArrowLeft size={24} className="hidden sm:block" />
           </button>
-          <h1 className="text-lg font-semibold">
+          <h1 className="text-base sm:text-lg font-semibold">
             {routineId ? 'Editar Rutina' : 'Nueva Rutina'}
           </h1>
           <button
             onClick={saveRoutine}
             disabled={saving}
-            className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-4 py-2 rounded-lg font-medium"
+            className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-3 py-2 sm:px-4 sm:py-2 rounded-lg font-medium text-sm sm:text-base"
           >
             {saving ? 'Guardando...' : 'Guardar'}
           </button>
         </div>
       </div>
 
-      <div className="p-4 space-y-6">
+      <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm sm:text-base font-medium text-gray-700 mb-2">
             Nombre de la Rutina
           </label>
           <input
@@ -178,50 +207,61 @@ export function CreateRoutine({ onBack, routineId, initialData }: CreateRoutineP
             value={routineName}
             onChange={(e) => setRoutineName(e.target.value)}
             placeholder="Ej: Push Day"
-            className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base"
           />
         </div>
 
         <div>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-medium text-gray-900">Ejercicios</h2>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0 mb-4">
+            <h2 className="text-base sm:text-lg font-medium text-gray-900">Ejercicios</h2>
             <button
               onClick={() => setShowExerciseForm(true)}
-              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium flex items-center"
+              className="bg-green-600 hover:bg-green-700 text-white px-3 py-2 sm:px-4 sm:py-2 rounded-lg font-medium flex items-center justify-center text-sm sm:text-base"
             >
-              <Plus size={20} className="mr-1" />
+              <Plus size={16} className="mr-1 sm:hidden" />
+              <Plus size={20} className="mr-1 hidden sm:block" />
               Crear Ejercicio
             </button>
           </div>
 
           {exercises.map((exercise, exerciseIndex) => (
-            <div key={exerciseIndex} className="bg-white rounded-lg p-4 mb-4 shadow-sm">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="font-semibold text-gray-900">{exercise.name}</h3>
-                <button
-                  onClick={() => removeExercise(exerciseIndex)}
-                  className="text-red-500 hover:text-red-700 p-1"
-                >
-                  <Trash2 size={18} />
-                </button>
+            <div key={exerciseIndex} className="bg-white rounded-lg p-4 mb-3 sm:mb-4 shadow-sm">
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex-1 pr-2">
+                  <h3 className="font-semibold text-gray-900 text-sm sm:text-base mb-1">{exercise.name}</h3>
+                </div>
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={() => editExercise(exerciseIndex)}
+                    className="text-blue-500 hover:text-blue-700 p-1.5 hover:bg-blue-50 rounded-lg transition-colors"
+                  >
+                    <Edit3 size={16} />
+                  </button>
+                  <button
+                    onClick={() => removeExercise(exerciseIndex)}
+                    className="text-red-500 hover:text-red-700 p-1.5 hover:bg-red-50 rounded-lg transition-colors"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
               </div>
               
               {exercise.technique && (
-                <p className="text-sm text-gray-600 mb-2">
+                <p className="text-xs sm:text-sm text-gray-600 mb-2">
                   <span className="font-medium">Técnica:</span> {exercise.technique}
                 </p>
               )}
               
               {exercise.expected_reps && (
-                <p className="text-sm text-gray-600 mb-3">
+                <p className="text-xs sm:text-sm text-gray-600 mb-3">
                   <span className="font-medium">Reps esperadas:</span> {exercise.expected_reps}
                 </p>
               )}
 
-              <div className="space-y-2">
+              <div className="space-y-1 sm:space-y-2">
                 {exercise.sets.map((set, setIndex) => (
-                  <div key={setIndex} className="flex items-center space-x-2">
-                    <span className="text-sm font-medium text-gray-500 w-8">
+                  <div key={setIndex} className="flex items-center space-x-2 text-xs sm:text-sm">
+                    <span className="font-medium text-gray-500 w-6 sm:w-8">
                       {setIndex + 1}
                     </span>
                     <input
@@ -229,14 +269,14 @@ export function CreateRoutine({ onBack, routineId, initialData }: CreateRoutineP
                       placeholder="kg"
                       value={set.weight}
                       readOnly
-                      className="flex-1 px-2 py-2 border border-gray-300 rounded bg-gray-50 text-center"
+                      className="flex-1 px-2 py-1.5 sm:py-2 border border-gray-300 rounded bg-gray-50 text-center"
                     />
                     <input
                       type="number"
                       placeholder="reps"
                       value={set.reps}
                       readOnly
-                      className="flex-1 px-2 py-2 border border-gray-300 rounded bg-gray-50 text-center"
+                      className="flex-1 px-2 py-1.5 sm:py-2 border border-gray-300 rounded bg-gray-50 text-center"
                     />
                   </div>
                 ))}
@@ -247,21 +287,24 @@ export function CreateRoutine({ onBack, routineId, initialData }: CreateRoutineP
       </div>
 
       {showExerciseForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-end justify-center z-50">
-          <div className="bg-white rounded-t-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between p-4 border-b">
-              <h3 className="text-lg font-semibold">Nuevo Ejercicio</h3>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-end sm:items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-t-xl sm:rounded-xl w-full max-w-md max-h-[90vh] sm:max-h-[80vh] overflow-y-auto">
+            <div className="flex items-center justify-between p-4 sm:p-6 border-b">
+              <h3 className="text-base sm:text-lg font-semibold">
+                {editingExercise ? 'Editar Ejercicio' : 'Nuevo Ejercicio'}
+              </h3>
               <button
-                onClick={() => setShowExerciseForm(false)}
+                onClick={cancelEdit}
                 className="p-2 hover:bg-gray-100 rounded-lg"
               >
-                <X size={24} />
+                <X size={20} className="sm:hidden" />
+                <X size={24} className="hidden sm:block" />
               </button>
             </div>
 
-            <div className="p-4 space-y-4">
+            <div className="p-4 sm:p-6 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm sm:text-base font-medium text-gray-700 mb-2">
                   Nombre del Ejercicio
                 </label>
                 <input
@@ -269,12 +312,12 @@ export function CreateRoutine({ onBack, routineId, initialData }: CreateRoutineP
                   value={newExercise.name}
                   onChange={(e) => setNewExercise(prev => ({ ...prev, name: e.target.value }))}
                   placeholder="Ej: Press de Banca"
-                  className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm sm:text-base font-medium text-gray-700 mb-2">
                   Técnica
                 </label>
                 <input
@@ -282,12 +325,12 @@ export function CreateRoutine({ onBack, routineId, initialData }: CreateRoutineP
                   value={newExercise.technique}
                   onChange={(e) => setNewExercise(prev => ({ ...prev, technique: e.target.value }))}
                   placeholder="Ej: Al Fallo, Parciales, Myo-Reps"
-                  className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm sm:text-base font-medium text-gray-700 mb-2">
                   Rango de Reps Esperadas
                 </label>
                 <input
@@ -295,25 +338,25 @@ export function CreateRoutine({ onBack, routineId, initialData }: CreateRoutineP
                   value={newExercise.expected_reps}
                   onChange={(e) => setNewExercise(prev => ({ ...prev, expected_reps: e.target.value }))}
                   placeholder="Ej: 8-12, 6-10"
-                  className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base"
                 />
               </div>
 
               <div>
-                <div className="flex items-center justify-between mb-3">
-                  <label className="text-sm font-medium text-gray-700">Series</label>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-0 mb-3">
+                  <label className="text-sm sm:text-base font-medium text-gray-700">Series</label>
                   <button
                     onClick={addSet}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm"
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded text-xs sm:text-sm font-medium"
                   >
                     + Añadir Serie
                   </button>
                 </div>
                 
-                <div className="space-y-2">
+                <div className="space-y-1.5 sm:space-y-2">
                   {newExercise.sets.map((set, setIndex) => (
-                    <div key={setIndex} className="flex items-center space-x-2">
-                      <span className="text-sm font-medium text-gray-500 w-8">
+                    <div key={setIndex} className="flex items-center space-x-2 text-xs sm:text-sm">
+                      <span className="font-medium text-gray-500 w-6 sm:w-8">
                         {setIndex + 1}
                       </span>
                       <input
@@ -321,21 +364,21 @@ export function CreateRoutine({ onBack, routineId, initialData }: CreateRoutineP
                         placeholder="kg"
                         value={set.weight}
                         onChange={(e) => updateSet(setIndex, 'weight', e.target.value)}
-                        className="flex-1 px-2 py-2 border border-gray-300 rounded text-center"
+                        className="flex-1 px-2 py-1.5 sm:py-2 border border-gray-300 rounded text-center"
                       />
                       <input
                         type="number"
                         placeholder="reps"
                         value={set.reps}
                         onChange={(e) => updateSet(setIndex, 'reps', e.target.value)}
-                        className="flex-1 px-2 py-2 border border-gray-300 rounded text-center"
+                        className="flex-1 px-2 py-1.5 sm:py-2 border border-gray-300 rounded text-center"
                       />
                       {newExercise.sets.length > 1 && (
                         <button
                           onClick={() => removeSet(setIndex)}
-                          className="text-red-500 hover:text-red-700 p-1"
+                          className="text-red-500 hover:text-red-700 p-1.5 hover:bg-red-50 rounded transition-colors"
                         >
-                          <Trash2 size={16} />
+                          <Trash2 size={14} />
                         </button>
                       )}
                     </div>
@@ -345,9 +388,9 @@ export function CreateRoutine({ onBack, routineId, initialData }: CreateRoutineP
 
               <button
                 onClick={addExercise}
-                className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-medium"
+                className="w-full bg-green-600 hover:bg-green-700 text-white py-2.5 sm:py-3 rounded-lg font-medium text-sm sm:text-base"
               >
-                Añadir Ejercicio
+                {editingExercise ? 'Actualizar Ejercicio' : 'Añadir Ejercicio'}
               </button>
             </div>
           </div>

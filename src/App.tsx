@@ -99,6 +99,7 @@ function App() {
             loading={routinesLoading}
             onCreateRoutine={handleCreateRoutine}
             onSelectRoutine={handleSelectRoutine}
+            onRefresh={fetchRoutines}
           />
         );
 
@@ -156,6 +157,7 @@ function App() {
             workouts={workouts}
             loading={workoutsLoading}
             onSelectWorkout={handleSelectWorkout}
+            onRefresh={() => {}}
           />
         );
 
