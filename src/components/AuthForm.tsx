@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { User, Lock, Mail, Eye, EyeOff } from 'lucide-react';
+import { User, Lock, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
 export function AuthForm() {
   const [isSignUp, setIsSignUp] = useState(false);
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -19,11 +19,10 @@ export function AuthForm() {
 
     try {
       if (isSignUp) {
-        await signUp(email, password);
-        alert('¡Cuenta creada exitosamente! Ya puedes iniciar sesión.');
-        setIsSignUp(false);
+        await signUp(username, password);
+        alert('¡Cuenta creada exitosamente! Ya puedes usar la aplicación.');
       } else {
-        await signIn(email, password);
+        await signIn(username, password);
       }
     } catch (error: any) {
       setError(error.message || 'Error de autenticación');
@@ -54,16 +53,17 @@ export function AuthForm() {
         <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Correo Electrónico
+              Nombre de Usuario
             </label>
             <div className="relative">
-              <Mail size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              <User size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="tu@email.com"
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="usuario123"
                 required
+                minLength={3}
                 className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base"
               />
             </div>
@@ -81,7 +81,7 @@ export function AuthForm() {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
                 required
-                minLength={6}
+                minLength={4}
                 className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base"
               />
               <button

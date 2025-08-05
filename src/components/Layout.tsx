@@ -28,9 +28,9 @@ export function Layout({ children, activeTab, onTabChange }: LayoutProps) {
             </div>
             <div>
               <p className="text-sm font-medium text-gray-900">
-                {user?.email?.split('@')[0] || 'Usuario'}
-              </p>
-              <p className="text-xs text-gray-500">Gym Tracker</p>
+            <p className="text-sm font-medium text-gray-900">
+              {user?.username || 'Usuario'}
+            </p>
             </div>
           </div>
           <button
