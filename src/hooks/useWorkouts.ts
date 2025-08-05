@@ -30,21 +30,26 @@ export function useWorkouts() {
     }
   };
 
-  const saveWorkout = async (routineId: string, exerciseData: any[], duration?: number) => {
+  const saveWorkout = async (routineId: string, exerciseData: any[]) => {
     try {
+      console.log('Saving workout with data:', { routineId, exerciseData });
+      
       const { data: workout, error: workoutError } = await supabase
         .from('workouts')
         .insert([{
           routine_id: routineId,
           date: new Date().toISOString(),
-          notes: duration ? `Duración: ${Math.floor(duration / 60)}:${(duration % 60).toString().padStart(2, '0')}` : null
+          notes: null
         }])
         .select()
         .single();
 
       if (workoutError) throw workoutError;
+      console.log('Workout created:', workout);
 
       for (const exercise of exerciseData) {
+        console.log('Processing exercise:', exercise);
+        
         const { data: workoutExercise, error: exerciseError } = await supabase
           .from('workout_exercises')
           .insert([{
@@ -56,6 +61,7 @@ export function useWorkouts() {
           .single();
 
         if (exerciseError) throw exerciseError;
+        console.log('Workout exercise created:', workoutExercise);
 
         if (exercise.sets && exercise.sets.length > 0) {
           const setsToInsert = exercise.sets.map((set: any, index: number) => ({
@@ -64,6 +70,8 @@ export function useWorkouts() {
             weight: set.weight,
             reps: set.reps
           }));
+          
+          console.log('Inserting sets:', setsToInsert);
 
           const { error: setsError } = await supabase
             .from('workout_sets')

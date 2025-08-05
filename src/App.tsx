@@ -59,8 +59,14 @@ function App() {
 
   const handleSaveWorkout = async (exerciseData: any[]) => {
     if (selectedRoutineWithExercises) {
-      await saveWorkout(selectedRoutineWithExercises.id, exerciseData, null);
-      setCurrentScreen('routines');
+      try {
+        await saveWorkout(selectedRoutineWithExercises.id, exerciseData);
+        alert('¡Entrenamiento guardado exitosamente!');
+        setCurrentScreen('routines');
+      } catch (error) {
+        console.error('Error saving workout:', error);
+        alert('Error al guardar el entrenamiento. Por favor intenta de nuevo.');
+      }
     }
   };
 

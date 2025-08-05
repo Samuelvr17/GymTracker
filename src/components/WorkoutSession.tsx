@@ -81,6 +81,32 @@ export function WorkoutSession({ routine, onBack, onSaveWorkout }: WorkoutSessio
 
 
   const handleSave = () => {
+    const exercises = routine.exercises?.map(exercise => {
+      const exerciseData = workoutData[exercise.id];
+      return {
+        id: exercise.id,
+        notes: exerciseNotes[exercise.id] || '',
+        sets: (exerciseData?.sets || []).map((set: any) => ({
+          weight: set.weight ? parseFloat(set.weight) : null,
+          reps: set.reps ? parseInt(set.reps) : null
+        })).filter((set: any) => set.weight !== null || set.reps !== null) // Solo incluir series con datos
+      };
+    }).filter(exercise => exercise.sets.length > 0) || []; // Solo incluir ejercicios con series
+
+    if (exercises.length === 0) {
+      alert('Por favor registra al menos una serie antes de guardar el entrenamiento');
+      return;
+    }
+
+    try {
+      onSaveWorkout(exercises);
+    } catch (error) {
+      console.error('Error saving workout:', error);
+      alert('Error al guardar el entrenamiento. Por favor intenta de nuevo.');
+    }
+  };
+
+  const handleSaveOld = () => {
     const exercises = Object.entries(workoutData).map(([exerciseId, data]: [string, any]) => ({
       id: exerciseId,
       notes: exerciseNotes[exerciseId] || '',
@@ -90,12 +116,7 @@ export function WorkoutSession({ routine, onBack, onSaveWorkout }: WorkoutSessio
       }))
     }));
 
-    const workoutPayload = {
-      exercises,
-      duration: elapsedTime
-    };
-    
-    onSaveWorkout(workoutPayload);
+    onSaveWorkout(exercises);
   };
 
   return (
