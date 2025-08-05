@@ -69,7 +69,7 @@ export function WorkoutDetails({ workout, onBack }: WorkoutDetailsProps) {
               <div className="flex items-center text-blue-600">
                 <Clock size={14} className="mr-2 sm:hidden" />
                 <Clock size={16} className="mr-2 hidden sm:block" />
-                <span className="font-bold">Duración: 2m</span>
+                <span className="font-bold">Duración: {workout.notes}</span>
               </div>
             </div>
             )}

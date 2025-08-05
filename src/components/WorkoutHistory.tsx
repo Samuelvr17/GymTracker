@@ -71,7 +71,7 @@ export function WorkoutHistory({ workouts, loading, onSelectWorkout, onRefresh }
                       <Clock size={14} className="mr-2 sm:hidden" />
                       <Clock size={16} className="mr-2 hidden sm:block" />
                       <span className="font-medium">
-                        {workout.notes || 'Sin duración registrada'}
+                        Duración: {workout.notes || 'No registrada'}
                       </span>
                   </div>
                 </div>

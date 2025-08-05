@@ -30,16 +30,19 @@ export function useWorkouts() {
     }
   };
 
-  const saveWorkout = async (routineId: string, exerciseData: any[]) => {
+  const saveWorkout = async (routineId: string, exerciseData: any[], duration?: number) => {
     try {
       console.log('Saving workout with data:', { routineId, exerciseData });
+      
+      // Formatear la duración en minutos
+      const durationText = duration ? `${Math.floor(duration / 60)}m` : null;
       
       const { data: workout, error: workoutError } = await supabase
         .from('workouts')
         .insert([{
           routine_id: routineId,
           date: new Date().toISOString(),
-          notes: null
+          notes: durationText
         }])
         .select()
         .single();
@@ -54,7 +57,7 @@ export function useWorkouts() {
           .from('workout_exercises')
           .insert([{
             workout_id: workout.id,
-            exercise_id: exercise.id,
+            exercise_id: exercise.exercise_id,
             notes: exercise.notes
           }])
           .select()
@@ -64,9 +67,9 @@ export function useWorkouts() {
         console.log('Workout exercise created:', workoutExercise);
 
         if (exercise.sets && exercise.sets.length > 0) {
-          const setsToInsert = exercise.sets.map((set: any, index: number) => ({
+          const setsToInsert = exercise.sets.map((set: any) => ({
             workout_exercise_id: workoutExercise.id,
-            set_number: index + 1,
+            set_number: set.set_number,
             weight: set.weight,
             reps: set.reps
           }));

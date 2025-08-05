@@ -81,25 +81,44 @@ export function WorkoutSession({ routine, onBack, onSaveWorkout }: WorkoutSessio
 
 
   const handleSave = () => {
-    const exercises = routine.exercises?.map(exercise => {
-      const exerciseData = workoutData[exercise.id];
-      return {
-        id: exercise.id,
-        notes: exerciseNotes[exercise.id] || '',
-        sets: (exerciseData?.sets || []).map((set: any) => ({
-          weight: set.weight ? parseFloat(set.weight) : null,
-          reps: set.reps ? parseInt(set.reps) : null
-        })).filter((set: any) => set.weight !== null || set.reps !== null) // Solo incluir series con datos
-      };
-    }).filter(exercise => exercise.sets.length > 0) || []; // Solo incluir ejercicios con series
+    // Crear array de ejercicios con sus series
+    const exercises = Object.entries(workoutData)
+      .map(([exerciseId, data]: [string, any]) => {
+        const exercise = routine.exercises?.find(ex => ex.id === exerciseId);
+        if (!exercise || !data.sets || data.sets.length === 0) return null;
+        
+        // Filtrar solo las series que tienen peso O repeticiones
+        const validSets = data.sets
+          .map((set: any, index: number) => ({
+            set_number: index + 1,
+            weight: set.weight && set.weight.trim() !== '' ? parseFloat(set.weight) : null,
+            reps: set.reps && set.reps.trim() !== '' ? parseInt(set.reps) : null
+          }))
+          .filter((set: any) => set.weight !== null || set.reps !== null);
+        
+        if (validSets.length === 0) return null;
+        
+        return {
+          exercise_id: exerciseId,
+          notes: exerciseNotes[exerciseId] || '',
+          sets: validSets
+        };
+      })
+      .filter(exercise => exercise !== null);
 
     if (exercises.length === 0) {
       alert('Por favor registra al menos una serie antes de guardar el entrenamiento');
       return;
     }
 
+    console.log('Saving workout with exercises:', exercises);
+    
     try {
-      onSaveWorkout(exercises);
+      onSaveWorkout({
+        routine_id: routine.id,
+        exercises: exercises,
+        duration: elapsedTime
+      });
     } catch (error) {
       console.error('Error saving workout:', error);
       alert('Error al guardar el entrenamiento. Por favor intenta de nuevo.');
