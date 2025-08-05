@@ -79,3 +79,5 @@ export function Layout({ children, activeTab, onTabChange }: LayoutProps) {
     </div>
   );
 }
+  )
+}
