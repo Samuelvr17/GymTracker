@@ -1,12 +1,16 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
+import { useAuth } from '../contexts/AuthContext';
 import { WorkoutWithDetails } from '../types';
 
 export function useWorkouts() {
+  const { user } = useAuth();
   const [workouts, setWorkouts] = useState<WorkoutWithDetails[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchWorkouts = async () => {
+    if (!user) return;
+    
     try {
       const { data, error } = await supabase
         .from('workouts')
@@ -19,6 +23,7 @@ export function useWorkouts() {
             workout_sets (*)
           )
         `)
+        .eq('user_id', user.id)
         .order('date', { ascending: false });
 
       if (error) throw error;
@@ -31,6 +36,8 @@ export function useWorkouts() {
   };
 
   const saveWorkout = async (routineId: string, exerciseData: any[], duration?: number) => {
+    if (!user) throw new Error('Usuario no autenticado');
+    
     try {
       console.log('Saving workout with data:', { routineId, exerciseData });
       
@@ -41,6 +48,7 @@ export function useWorkouts() {
         .from('workouts')
         .insert([{
           routine_id: routineId,
+          user_id: user.id,
           date: new Date().toISOString(),
           notes: durationText
         }])
@@ -93,8 +101,10 @@ export function useWorkouts() {
   };
 
   useEffect(() => {
-    fetchWorkouts();
-  }, []);
+    if (user) {
+      fetchWorkouts();
+    }
+  }, [user]);
 
   return {
     workouts,

@@ -1,5 +1,6 @@
 export interface Routine {
   id: string;
+  user_id: string;
   name: string;
   created_at: string;
 }
@@ -23,6 +24,7 @@ export interface ExerciseSet {
 
 export interface Workout {
   id: string;
+  user_id: string;
   routine_id: string;
   date: string;
   notes?: string;

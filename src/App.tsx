@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { useAuth } from './contexts/AuthContext';
+import { AuthForm } from './components/AuthForm';
 import { Layout } from './components/Layout';
 import { RoutinesList } from './components/RoutinesList';
 import { CreateRoutine } from './components/CreateRoutine';
@@ -20,6 +22,7 @@ type Screen =
   | 'workout-details';
 
 function App() {
+  const { user, loading } = useAuth();
   const [activeTab, setActiveTab] = useState<'routines' | 'reports'>('routines');
   const [currentScreen, setCurrentScreen] = useState<Screen>('routines');
   const [selectedRoutine, setSelectedRoutine] = useState<Routine | null>(null);
@@ -28,6 +31,23 @@ function App() {
 
   const { routines, loading: routinesLoading, fetchRoutines, getRoutineWithExercises } = useRoutines();
   const { workouts, loading: workoutsLoading, saveWorkout } = useWorkouts();
+
+  // Show loading spinner while checking auth
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-500 via-blue-600 to-purple-700 flex items-center justify-center">
+        <div className="text-white text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
+          <p className="text-lg font-medium">Cargando...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show auth form if user is not authenticated
+  if (!user) {
+    return <AuthForm />;
+  }
 
   const handleTabChange = (tab: 'routines' | 'reports') => {
     setActiveTab(tab);

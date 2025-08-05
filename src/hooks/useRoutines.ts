@@ -1,12 +1,16 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
+import { useAuth } from '../contexts/AuthContext';
 import { Routine, RoutineWithExercises } from '../types';
 
 export function useRoutines() {
+  const { user } = useAuth();
   const [routines, setRoutines] = useState<Routine[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchRoutines = async () => {
+    if (!user) return;
+    
     try {
       const { data, error } = await supabase
         .from('routines')
@@ -14,6 +18,7 @@ export function useRoutines() {
           *,
           exercises (*)
         `)
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -26,10 +31,12 @@ export function useRoutines() {
   };
 
   const createRoutine = async (name: string) => {
+    if (!user) throw new Error('Usuario no autenticado');
+    
     try {
       const { data, error } = await supabase
         .from('routines')
-        .insert([{ name }])
+        .insert([{ name, user_id: user.id }])
         .select()
         .single();
 
@@ -43,11 +50,14 @@ export function useRoutines() {
   };
 
   const getRoutineWithExercises = async (routineId: string): Promise<RoutineWithExercises | null> => {
+    if (!user) return null;
+    
     try {
       const { data: routine, error: routineError } = await supabase
         .from('routines')
         .select('*')
         .eq('id', routineId)
+        .eq('user_id', user.id)
         .single();
 
       if (routineError) throw routineError;
@@ -77,8 +87,10 @@ export function useRoutines() {
   };
 
   useEffect(() => {
-    fetchRoutines();
-  }, []);
+    if (user) {
+      fetchRoutines();
+    }
+  }, [user]);
 
   return {
     routines,
