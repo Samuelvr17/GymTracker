@@ -28,9 +28,8 @@ export function Layout({ children, activeTab, onTabChange }: LayoutProps) {
             </div>
             <div>
               <p className="text-sm font-medium text-gray-900">
-            <p className="text-sm font-medium text-gray-900">
-              {user?.username || 'Usuario'}
-            </p>
+                {user?.username || 'Usuario'}
+              </p>
             </div>
           </div>
           <button
