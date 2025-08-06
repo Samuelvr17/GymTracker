@@ -36,11 +36,17 @@ export function useRoutines() {
     try {
       const { data, error } = await supabase
         .from('routines')
-        .insert([{ name, user_id: user.id }])
+        .insert([{ 
+          name, 
+          user_id: user.id 
+        }])
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error creating routine:', error);
+        throw error;
+      }
       await fetchRoutines();
       return data;
     } catch (error) {

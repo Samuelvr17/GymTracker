@@ -37,6 +37,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Hash password (simple implementation - in production use proper hashing)
     const passwordHash = btoa(password); // Base64 encoding (not secure for production)
     
+    try {
     const { data, error } = await supabase
       .from('users')
       .insert([{ username, password_hash: passwordHash }])
@@ -47,15 +48,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (error.code === '23505') { // Unique constraint violation
         throw new Error('El nombre de usuario ya existe');
       }
+      console.error('Signup error:', error);
       throw new Error('Error al crear la cuenta');
     }
 
     const newUser = { id: data.id, username: data.username };
     setUser(newUser);
     localStorage.setItem('gym_tracker_user', JSON.stringify(newUser));
+    } catch (error) {
+      console.error('Signup error:', error);
+      throw error;
+    }
   };
 
   const signIn = async (username: string, password: string) => {
+    try {
     const passwordHash = btoa(password);
     
     const { data, error } = await supabase
@@ -66,12 +73,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       .single();
 
     if (error || !data) {
+      console.error('Signin error:', error);
       throw new Error('Usuario o contraseña incorrectos');
     }
 
     const loggedUser = { id: data.id, username: data.username };
     setUser(loggedUser);
     localStorage.setItem('gym_tracker_user', JSON.stringify(loggedUser));
+    } catch (error) {
+      console.error('Signin error:', error);
+      throw error;
+    }
   };
 
   const signOut = async () => {

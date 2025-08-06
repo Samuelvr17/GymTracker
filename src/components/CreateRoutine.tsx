@@ -110,19 +110,37 @@ export function CreateRoutine({ onBack, routineId, initialData }: CreateRoutineP
       let currentRoutineId = routineId;
 
       if (!currentRoutineId) {
+        // Get current user from localStorage
+        const savedUser = localStorage.getItem('gym_tracker_user');
+        if (!savedUser) {
+          throw new Error('Usuario no autenticado');
+        }
+        const user = JSON.parse(savedUser);
+        
         const { data: routine, error: routineError } = await supabase
           .from('routines')
-          .insert([{ name: routineName }])
+          .insert([{ 
+            name: routineName,
+            user_id: user.id 
+          }])
           .select()
           .single();
 
-        if (routineError) throw routineError;
+        if (routineError) {
+          console.error('Error creating routine:', routineError);
+          throw routineError;
+        }
         currentRoutineId = routine.id;
       } else {
-        await supabase
+        const { error: updateError } = await supabase
           .from('routines')
           .update({ name: routineName })
           .eq('id', currentRoutineId);
+        
+        if (updateError) {
+          console.error('Error updating routine:', updateError);
+          throw updateError;
+        }
       }
 
       // Delete existing exercises if editing

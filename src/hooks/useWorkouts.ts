@@ -55,7 +55,10 @@ export function useWorkouts() {
         .select()
         .single();
 
-      if (workoutError) throw workoutError;
+      if (workoutError) {
+        console.error('Error creating workout:', workoutError);
+        throw workoutError;
+      }
       console.log('Workout created:', workout);
 
       for (const exercise of exerciseData) {
