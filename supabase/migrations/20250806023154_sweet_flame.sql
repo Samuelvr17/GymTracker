@@ -37,7 +37,7 @@ CREATE POLICY "Users can read own data"
   ON users
   FOR SELECT
   TO authenticated
-  USING (id = uid());
+  USING (id = auth.uid()::uuid);
 
 -- Allow anonymous users to read for authentication
 DROP POLICY IF EXISTS "Allow authentication lookup" ON users;
@@ -76,14 +76,10 @@ CREATE POLICY "Users can manage their own routines"
   FOR ALL
   TO anon, authenticated
   USING (
-    user_id IN (
-      SELECT id FROM users WHERE id = user_id
-    )
+    user_id = auth.uid()::uuid
   )
   WITH CHECK (
-    user_id IN (
-      SELECT id FROM users WHERE id = user_id
-    )
+    user_id = auth.uid()::uuid
   );
 
 -- Update RLS policies for workouts
@@ -93,14 +89,10 @@ CREATE POLICY "Users can manage their own workouts"
   FOR ALL
   TO anon, authenticated
   USING (
-    user_id IN (
-      SELECT id FROM users WHERE id = user_id
-    )
+    user_id = auth.uid()::uuid
   )
   WITH CHECK (
-    user_id IN (
-      SELECT id FROM users WHERE id = user_id
-    )
+    user_id = auth.uid()::uuid
   );
 
 -- Update RLS policies for exercises (through routines)
@@ -112,17 +104,15 @@ CREATE POLICY "Users can manage exercises in their routines"
   USING (
     EXISTS (
       SELECT 1 FROM routines r
-      JOIN users u ON r.user_id = u.id
       WHERE r.id = exercises.routine_id 
-      AND r.user_id = u.id
+        AND r.user_id = auth.uid()::uuid
     )
   )
   WITH CHECK (
     EXISTS (
       SELECT 1 FROM routines r
-      JOIN users u ON r.user_id = u.id
       WHERE r.id = exercises.routine_id 
-      AND r.user_id = u.id
+        AND r.user_id = auth.uid()::uuid
     )
   );
 
@@ -136,18 +126,16 @@ CREATE POLICY "Users can manage sets in their exercises"
     EXISTS (
       SELECT 1 FROM exercises e
       JOIN routines r ON r.id = e.routine_id
-      JOIN users u ON r.user_id = u.id
       WHERE e.id = exercise_sets.exercise_id 
-      AND r.user_id = u.id
+        AND r.user_id = auth.uid()::uuid
     )
   )
   WITH CHECK (
     EXISTS (
       SELECT 1 FROM exercises e
       JOIN routines r ON r.id = e.routine_id
-      JOIN users u ON r.user_id = u.id
       WHERE e.id = exercise_sets.exercise_id 
-      AND r.user_id = u.id
+        AND r.user_id = auth.uid()::uuid
     )
   );
 
@@ -160,17 +148,15 @@ CREATE POLICY "Users can manage exercises in their workouts"
   USING (
     EXISTS (
       SELECT 1 FROM workouts w
-      JOIN users u ON w.user_id = u.id
       WHERE w.id = workout_exercises.workout_id 
-      AND w.user_id = u.id
+        AND w.user_id = auth.uid()::uuid
     )
   )
   WITH CHECK (
     EXISTS (
       SELECT 1 FROM workouts w
-      JOIN users u ON w.user_id = u.id
       WHERE w.id = workout_exercises.workout_id 
-      AND w.user_id = u.id
+        AND w.user_id = auth.uid()::uuid
     )
   );
 
@@ -184,17 +170,15 @@ CREATE POLICY "Users can manage sets in their workout exercises"
     EXISTS (
       SELECT 1 FROM workout_exercises we
       JOIN workouts w ON w.id = we.workout_id
-      JOIN users u ON w.user_id = u.id
       WHERE we.id = workout_sets.workout_exercise_id 
-      AND w.user_id = u.id
+        AND w.user_id = auth.uid()::uuid
     )
   )
   WITH CHECK (
     EXISTS (
       SELECT 1 FROM workout_exercises we
       JOIN workouts w ON w.id = we.workout_id
-      JOIN users u ON w.user_id = u.id
       WHERE we.id = workout_sets.workout_exercise_id 
-      AND w.user_id = u.id
+        AND w.user_id = auth.uid()::uuid
     )
   );
