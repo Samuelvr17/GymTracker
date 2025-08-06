@@ -24,21 +24,24 @@ CREATE TABLE IF NOT EXISTS users (
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 
 -- Allow user registration (anyone can insert)
-CREATE POLICY "Allow user registration" 
+DROP POLICY IF EXISTS "Allow user registration" ON users;
+CREATE POLICY "Allow user registration"
   ON users
   FOR INSERT
   TO anon
   WITH CHECK (true);
 
 -- Users can read own data
-CREATE POLICY "Users can read own data" 
+DROP POLICY IF EXISTS "Users can read own data" ON users;
+CREATE POLICY "Users can read own data"
   ON users
   FOR SELECT
   TO authenticated
   USING (id = uid());
 
 -- Allow anonymous users to read for authentication
-CREATE POLICY "Allow authentication lookup" 
+DROP POLICY IF EXISTS "Allow authentication lookup" ON users;
+CREATE POLICY "Allow authentication lookup"
   ON users
   FOR SELECT
   TO anon
@@ -67,7 +70,8 @@ BEGIN
 END $$;
 
 -- Update RLS policies for routines
-CREATE POLICY "Users can manage their own routines" 
+DROP POLICY IF EXISTS "Users can manage their own routines" ON routines;
+CREATE POLICY "Users can manage their own routines"
   ON routines
   FOR ALL
   TO anon, authenticated
@@ -83,7 +87,8 @@ CREATE POLICY "Users can manage their own routines"
   );
 
 -- Update RLS policies for workouts
-CREATE POLICY "Users can manage their own workouts" 
+DROP POLICY IF EXISTS "Users can manage their own workouts" ON workouts;
+CREATE POLICY "Users can manage their own workouts"
   ON workouts
   FOR ALL
   TO anon, authenticated
@@ -99,7 +104,8 @@ CREATE POLICY "Users can manage their own workouts"
   );
 
 -- Update RLS policies for exercises (through routines)
-CREATE POLICY "Users can manage exercises in their routines" 
+DROP POLICY IF EXISTS "Users can manage exercises in their routines" ON exercises;
+CREATE POLICY "Users can manage exercises in their routines"
   ON exercises
   FOR ALL
   TO anon, authenticated
@@ -121,7 +127,8 @@ CREATE POLICY "Users can manage exercises in their routines"
   );
 
 -- Update RLS policies for exercise_sets (through exercises and routines)
-CREATE POLICY "Users can manage sets in their exercises" 
+DROP POLICY IF EXISTS "Users can manage sets in their exercises" ON exercise_sets;
+CREATE POLICY "Users can manage sets in their exercises"
   ON exercise_sets
   FOR ALL
   TO anon, authenticated
@@ -145,7 +152,8 @@ CREATE POLICY "Users can manage sets in their exercises"
   );
 
 -- Update RLS policies for workout_exercises (through workouts)
-CREATE POLICY "Users can manage exercises in their workouts" 
+DROP POLICY IF EXISTS "Users can manage exercises in their workouts" ON workout_exercises;
+CREATE POLICY "Users can manage exercises in their workouts"
   ON workout_exercises
   FOR ALL
   TO anon, authenticated
@@ -167,7 +175,8 @@ CREATE POLICY "Users can manage exercises in their workouts"
   );
 
 -- Update RLS policies for workout_sets (through workout_exercises and workouts)
-CREATE POLICY "Users can manage sets in their workout exercises" 
+DROP POLICY IF EXISTS "Users can manage sets in their workout exercises" ON workout_sets;
+CREATE POLICY "Users can manage sets in their workout exercises"
   ON workout_sets
   FOR ALL
   TO anon, authenticated
