@@ -9,9 +9,9 @@
     - Functions to test the authentication system
 */
 
--- Drop existing functions if they exist
-DROP FUNCTION IF EXISTS set_user_session(uuid);
-DROP FUNCTION IF EXISTS get_current_user_id();
+-- Drop existing functions if they exist (con CASCADE para eliminar dependencias)
+DROP FUNCTION IF EXISTS set_user_session(uuid) CASCADE;
+DROP FUNCTION IF EXISTS get_current_user_id() CASCADE;
 
 -- Enhanced set_user_session function with debugging
 CREATE OR REPLACE FUNCTION set_user_session(user_uuid uuid)
