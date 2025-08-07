@@ -25,7 +25,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const savedUser = localStorage.getItem('gym_tracker_user');
     if (savedUser) {
       try {
-        setUser(JSON.parse(savedUser));
+        const user = JSON.parse(savedUser);
+        setUser(user);
+        // Set user session in database for existing session
+        supabase.rpc('set_user_session', { user_uuid: user.id });
       } catch (error) {
         localStorage.removeItem('gym_tracker_user');
       }
@@ -38,23 +41,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const passwordHash = btoa(password); // Base64 encoding (not secure for production)
     
     try {
-    const { data, error } = await supabase
-      .from('users')
-      .insert([{ username, password_hash: passwordHash }])
-      .select()
-      .single();
+      console.log('Attempting to create user:', { username });
+      
+      const { data, error } = await supabase
+        .from('users')
+        .insert([{ username, password_hash: passwordHash }])
+        .select()
+        .single();
 
-    if (error) {
-      if (error.code === '23505') { // Unique constraint violation
-        throw new Error('El nombre de usuario ya existe');
+      if (error) {
+        console.error('Signup database error:', error);
+        if (error.code === '23505') { // Unique constraint violation
+          throw new Error('El nombre de usuario ya existe');
+        }
+        throw new Error(`Error al crear la cuenta: ${error.message}`);
       }
-      console.error('Signup error:', error);
-      throw new Error('Error al crear la cuenta');
-    }
 
-    const newUser = { id: data.id, username: data.username };
-    setUser(newUser);
-    localStorage.setItem('gym_tracker_user', JSON.stringify(newUser));
+      console.log('User created successfully:', data);
+      
+      // Set user session in database
+      await supabase.rpc('set_user_session', { user_uuid: data.id });
+      
+      const newUser = { id: data.id, username: data.username };
+      setUser(newUser);
+      localStorage.setItem('gym_tracker_user', JSON.stringify(newUser));
     } catch (error) {
       console.error('Signup error:', error);
       throw error;
@@ -63,23 +73,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signIn = async (username: string, password: string) => {
     try {
-    const passwordHash = btoa(password);
-    
-    const { data, error } = await supabase
-      .from('users')
-      .select('id, username')
-      .eq('username', username)
-      .eq('password_hash', passwordHash)
-      .single();
+      console.log('Attempting to sign in user:', { username });
+      
+      const passwordHash = btoa(password);
+      
+      const { data, error } = await supabase
+        .from('users')
+        .select('id, username')
+        .eq('username', username)
+        .eq('password_hash', passwordHash)
+        .single();
 
-    if (error || !data) {
-      console.error('Signin error:', error);
-      throw new Error('Usuario o contraseña incorrectos');
-    }
+      if (error || !data) {
+        console.error('Signin database error:', error);
+        throw new Error('Usuario o contraseña incorrectos');
+      }
 
-    const loggedUser = { id: data.id, username: data.username };
-    setUser(loggedUser);
-    localStorage.setItem('gym_tracker_user', JSON.stringify(loggedUser));
+      console.log('User signed in successfully:', data);
+      
+      // Set user session in database
+      await supabase.rpc('set_user_session', { user_uuid: data.id });
+      
+      const loggedUser = { id: data.id, username: data.username };
+      setUser(loggedUser);
+      localStorage.setItem('gym_tracker_user', JSON.stringify(loggedUser));
     } catch (error) {
       console.error('Signin error:', error);
       throw error;

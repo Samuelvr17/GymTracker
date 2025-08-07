@@ -107,15 +107,22 @@ export function CreateRoutine({ onBack, routineId, initialData }: CreateRoutineP
 
     setSaving(true);
     try {
+      console.log('Starting to save routine:', { routineName, exercisesCount: exercises.length });
+      
       let currentRoutineId = routineId;
 
       if (!currentRoutineId) {
         // Get current user from localStorage
         const savedUser = localStorage.getItem('gym_tracker_user');
         if (!savedUser) {
+          console.error('No user found in localStorage');
           throw new Error('Usuario no autenticado');
         }
         const user = JSON.parse(savedUser);
+        console.log('User from localStorage:', user);
+        
+        // Ensure user session is set in database
+        await supabase.rpc('set_user_session', { user_uuid: user.id });
         
         const { data: routine, error: routineError } = await supabase
           .from('routines')
@@ -128,10 +135,13 @@ export function CreateRoutine({ onBack, routineId, initialData }: CreateRoutineP
 
         if (routineError) {
           console.error('Error creating routine:', routineError);
+          console.error('Error creating routine:', routineError);
           throw routineError;
         }
+        console.log('Routine created:', routine);
         currentRoutineId = routine.id;
       } else {
+        console.log('Updating existing routine:', currentRoutineId);
         const { error: updateError } = await supabase
           .from('routines')
           .update({ name: routineName })
@@ -139,12 +149,14 @@ export function CreateRoutine({ onBack, routineId, initialData }: CreateRoutineP
         
         if (updateError) {
           console.error('Error updating routine:', updateError);
+          console.error('Error updating routine:', updateError);
           throw updateError;
         }
       }
 
       // Delete existing exercises if editing
       if (routineId) {
+        console.log('Deleting existing exercises for routine:', routineId);
         await supabase
           .from('exercises')
           .delete()
@@ -152,8 +164,11 @@ export function CreateRoutine({ onBack, routineId, initialData }: CreateRoutineP
       }
 
       // Insert exercises
+      console.log('Inserting exercises:', exercises.length);
       for (let i = 0; i < exercises.length; i++) {
         const exercise = exercises[i];
+        console.log(`Inserting exercise ${i + 1}:`, exercise.name);
+        
         const { data: exerciseData, error: exerciseError } = await supabase
           .from('exercises')
           .insert([{
@@ -167,6 +182,7 @@ export function CreateRoutine({ onBack, routineId, initialData }: CreateRoutineP
           .single();
 
         if (exerciseError) throw exerciseError;
+        console.log('Exercise created:', exerciseData);
 
         // Insert template sets
         const setsToInsert = exercise.sets.map((set, setIndex) => ({
@@ -177,6 +193,8 @@ export function CreateRoutine({ onBack, routineId, initialData }: CreateRoutineP
         }));
 
         if (setsToInsert.length > 0) {
+          console.log(`Inserting ${setsToInsert.length} sets for exercise:`, exerciseData.name);
+          
           const { error: setsError } = await supabase
             .from('exercise_sets')
             .insert(setsToInsert);
@@ -185,10 +203,12 @@ export function CreateRoutine({ onBack, routineId, initialData }: CreateRoutineP
         }
       }
 
+      console.log('Routine saved successfully');
       onBack();
     } catch (error) {
       console.error('Error saving routine:', error);
-      alert('Error al guardar la rutina');
+      const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
+      alert(`Error al guardar la rutina: ${errorMessage}`);
     } finally {
       setSaving(false);
     }
