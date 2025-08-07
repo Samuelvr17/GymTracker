@@ -41,7 +41,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const passwordHash = btoa(password); // Base64 encoding (not secure for production)
     
     try {
-      console.log('Attempting to create user:', { username });
+      console.log('=== SIGNUP ATTEMPT ===');
+      console.log('Username:', username);
+      console.log('Password length:', password.length);
       
       const { data, error } = await supabase
         .from('users')
@@ -50,30 +52,46 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .single();
 
       if (error) {
-        console.error('Signup database error:', error);
+        console.error('=== SIGNUP DATABASE ERROR ===');
+        console.error('Error object:', error);
+        console.error('Error code:', error.code);
+        console.error('Error message:', error.message);
+        console.error('Error details:', error.details);
+        console.error('Error hint:', error.hint);
+        
         if (error.code === '23505') { // Unique constraint violation
           throw new Error('El nombre de usuario ya existe');
         }
         throw new Error(`Error al crear la cuenta: ${error.message}`);
       }
 
-      console.log('User created successfully:', data);
+      console.log('=== USER CREATED SUCCESSFULLY ===');
+      console.log('User data:', data);
       
       // Set user session in database
-      await supabase.rpc('set_user_session', { user_uuid: data.id });
+      console.log('Setting user session...');
+      const { data: sessionData, error: sessionError } = await supabase.rpc('set_user_session', { user_uuid: data.id });
+      if (sessionError) {
+        console.error('SESSION ERROR during signup:', sessionError);
+        throw new Error(`Error estableciendo sesión: ${sessionError.message}`);
+      }
+      console.log('Session set during signup:', sessionData);
       
       const newUser = { id: data.id, username: data.username };
       setUser(newUser);
       localStorage.setItem('gym_tracker_user', JSON.stringify(newUser));
+      console.log('=== SIGNUP COMPLETED ===');
     } catch (error) {
-      console.error('Signup error:', error);
+      console.error('=== SIGNUP ERROR ===');
+      console.error('Error object:', error);
       throw error;
     }
   };
 
   const signIn = async (username: string, password: string) => {
     try {
-      console.log('Attempting to sign in user:', { username });
+      console.log('=== SIGNIN ATTEMPT ===');
+      console.log('Username:', username);
       
       const passwordHash = btoa(password);
       
@@ -85,20 +103,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .single();
 
       if (error || !data) {
-        console.error('Signin database error:', error);
+        console.error('=== SIGNIN DATABASE ERROR ===');
+        console.error('Error:', error);
         throw new Error('Usuario o contraseña incorrectos');
       }
 
-      console.log('User signed in successfully:', data);
+      console.log('=== USER SIGNED IN SUCCESSFULLY ===');
+      console.log('User data:', data);
       
       // Set user session in database
-      await supabase.rpc('set_user_session', { user_uuid: data.id });
+      console.log('Setting user session...');
+      const { data: sessionData, error: sessionError } = await supabase.rpc('set_user_session', { user_uuid: data.id });
+      if (sessionError) {
+        console.error('SESSION ERROR during signin:', sessionError);
+        throw new Error(`Error estableciendo sesión: ${sessionError.message}`);
+      }
+      console.log('Session set during signin:', sessionData);
       
       const loggedUser = { id: data.id, username: data.username };
       setUser(loggedUser);
       localStorage.setItem('gym_tracker_user', JSON.stringify(loggedUser));
+      console.log('=== SIGNIN COMPLETED ===');
     } catch (error) {
-      console.error('Signin error:', error);
+      console.error('=== SIGNIN ERROR ===');
+      console.error('Error object:', error);
       throw error;
     }
   };
