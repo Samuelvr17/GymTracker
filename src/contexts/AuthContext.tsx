@@ -28,7 +28,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const user = JSON.parse(savedUser);
         setUser(user);
         // Set user session in database for existing session
-        supabase.rpc('set_user_session', { user_uuid: user.id });
+        console.log('Restoring user session for:', user.username);
+        supabase.rpc('set_user_session', { user_id: user.id }).then(({ data, error }) => {
+          if (error) {
+            console.error('Error restoring session:', error);
+          } else {
+            console.log('Session restored successfully:', data);
+          }
+        });
       } catch (error) {
         localStorage.removeItem('gym_tracker_user');
       }
@@ -70,7 +77,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       // Set user session in database
       console.log('Setting user session...');
-      const { data: sessionData, error: sessionError } = await supabase.rpc('set_user_session', { user_uuid: data.id });
+      const { data: sessionData, error: sessionError } = await supabase.rpc('set_user_session', { user_id: data.id });
       if (sessionError) {
         console.error('SESSION ERROR during signup:', sessionError);
         throw new Error(`Error estableciendo sesión: ${sessionError.message}`);
@@ -113,7 +120,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       // Set user session in database
       console.log('Setting user session...');
-      const { data: sessionData, error: sessionError } = await supabase.rpc('set_user_session', { user_uuid: data.id });
+      const { data: sessionData, error: sessionError } = await supabase.rpc('set_user_session', { user_id: data.id });
       if (sessionError) {
         console.error('SESSION ERROR during signin:', sessionError);
         throw new Error(`Error estableciendo sesión: ${sessionError.message}`);

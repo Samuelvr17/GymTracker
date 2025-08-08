@@ -125,14 +125,22 @@ export function CreateRoutine({ onBack, routineId, initialData }: CreateRoutineP
         const user = JSON.parse(savedUser);
         console.log('User from localStorage:', user);
         
-        // Ensure user session is set in database
-        console.log('Setting user session in database...');
-        const { data: sessionData, error: sessionError } = await supabase.rpc('set_user_session', { user_uuid: user.id });
+        // Ensure user session is set in database before creating routine
+        console.log('Ensuring user session is set in database...');
+        const { data: sessionData, error: sessionError } = await supabase.rpc('set_user_session', { user_id: user.id });
         if (sessionError) {
           console.error('SESSION ERROR:', sessionError);
           throw new Error(`Error estableciendo sesión: ${sessionError.message}`);
         }
         console.log('Session set successfully:', sessionData);
+        
+        // Verify session is working
+        const { data: testData, error: testError } = await supabase.rpc('test_current_session');
+        if (testError) {
+          console.error('SESSION TEST ERROR:', testError);
+          throw new Error(`Error verificando sesión: ${testError.message}`);
+        }
+        console.log('Session test result:', testData);
         
         console.log('Creating routine in database...');
         const { data: routine, error: routineError } = await supabase
@@ -157,6 +165,14 @@ export function CreateRoutine({ onBack, routineId, initialData }: CreateRoutineP
         console.log('Routine created:', routine);
         currentRoutineId = routine.id;
       } else {
+        // For editing existing routine, also ensure session is set
+        const savedUser = localStorage.getItem('gym_tracker_user');
+        if (savedUser) {
+          const user = JSON.parse(savedUser);
+          console.log('Setting session for routine edit...');
+          await supabase.rpc('set_user_session', { user_id: user.id });
+        }
+        
         console.log('Updating existing routine:', currentRoutineId);
         const { error: updateError } = await supabase
           .from('routines')
