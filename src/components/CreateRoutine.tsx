@@ -142,14 +142,12 @@ export function CreateRoutine({ onBack, routineId, initialData }: CreateRoutineP
         }
         console.log('Session test result:', testData);
         
-        console.log('Creating routine in database...');
+        console.log('Creating routine in database via RPC...');
         const { data: routine, error: routineError } = await supabase
-          .from('routines')
-          .insert([{ 
-            name: routineName,
-            user_id: user.id 
-          }])
-          .select()
+          .rpc('create_user_routine', {
+            _user_id: user.id,
+            _name: routineName
+          })
           .single();
 
         if (routineError) {
